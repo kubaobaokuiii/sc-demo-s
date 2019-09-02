@@ -1,0 +1,39 @@
+1.采用npm+webpack+vue+element ui框架
+
+2.默认端口8088
+
+2.2.运行命令:
+npm install
+npm run dev
+
+2.3.打包命令：
+npm run build
+
+2.4.前端目录结构：
+
+build是编译后的文件，node_modules是依赖包，webpack.config.js是webpack的配置，index.html是入口模板
+公众静态资料目录asserts
+
+第三方插件目录static
+公共方法util
+指令directives
+状态管理vuex
+公共组件components
+路由routes
+页面views
+配置目录config
+打包成功目录dist
+
+2.5.前端功能：
+用户管理：用户删除、编辑、新增、翻页、用户列表展示
+航班管理：航班删除、编辑、新增、翻页、航班列表展示
+订单管理：订单列表展示、查看订单信息、翻页
+查看航班
+查看用户
+查看订单详情
+
+2.6打包完成后需要修改dist目录下index.html需要修改一下路径，在本地看到界面才能够上传服务器部署
+
+一律修改成以./static为结尾，去掉vueadmin/
+
+./static/css/app.8e28e1a72ce93f73db61963e18c74f62.css

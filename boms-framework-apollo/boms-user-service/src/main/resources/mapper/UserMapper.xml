@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD com.guo.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bocloud.boms.framework.user.mapper.LoginUserMapper">
+    <resultMap id="loginUser" type="com.bocloud.boms.framework.user.model.LoginUser">
+        <result column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="card" property="card"/>
+        <result column="birthday" property="birthday"/>
+        <result column="age" property="age"/>
+        <result column="sex" property="sex"/>
+        <result column="adress" property="adress"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,username,password,card,birthday,age,sex,adress
+    </sql>
+
+    <!--订单服务调用用户服务测试-->
+    <select id="getOrderByUserId" resultMap="loginUser" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from login_user
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+
+
+    <!-- 根据用户名和密码查询 -->
+    <select id="selectByUserNameAndPwd" resultMap="loginUser" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List" />
+        from login_user
+        where username = #{username}
+    </select>
+
+    <!--根据用户名查询-->
+    <select id="selectByUserName" resultMap="loginUser" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List" />
+        from login_user
+        where username = #{username}
+    </select>
+
+    <!--用户的查询功能-->
+    <select id="findById" resultMap="loginUser" parameterType="java.lang.Integer">
+      select 
+      <include refid="Base_Column_List"/>
+      from login_user
+      where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--用户的增加功能-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.bocloud.boms.framework.user.model.LoginUser">
+        insert into login_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="card != null">
+                card,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="adress != null">
+                adress,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="card != null">
+                #{card,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                #{birthday,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="adress != null">
+                #{adress,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!--用户的删除功能-->
+    <delete id="deleteById" parameterType="java.lang.Integer">
+        delete from login_user
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <!--用户的修改功能-->
+    <update id="update" parameterType="com.bocloud.boms.framework.user.model.LoginUser">
+--         update login_user set username = "update_user" where id=0
+        update login_user
+
+        <set>
+
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="card != null">
+                card = #{card,jdbcType=VARCHAR},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="adress != null">
+                adress = #{adress,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--查询所有的用户-->
+    <select id="findAll"  resultMap="loginUser">
+        select
+        <include refid="Base_Column_List" />
+        from login_user
+    </select>
+
+    <!--根据机票信息显示定该票的所有用户-->
+    <!--<select id="fightToUser" resultType="com.guo.Model.LoginUser">-->
+        <!--select-->
+        <!--u.username,u.card,u.birthday,u.age,u.sex,u.adress-->
+        <!--from login_user u-->
+        <!--left join fight_management f on u.id = f.id where f.fight_id = #{id}-->
+    <!--</select>-->
+
+
+</mapper>
+

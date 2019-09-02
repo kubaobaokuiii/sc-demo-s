@@ -1,0 +1,57 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+server:
+  port: 8002
+
+debug: true
+
+spring:
+  application:
+    name: boms-turbine-service
+  cloud:
+    config:
+        enabled: false
+    consul:
+      host: 10.20.11.111
+      port: 8500
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+        serviceName: ${spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 15s
+        prefer-ip-address: true
+        tags: urlprefix-/${spring.application.name},app_sc_hangban,zh_bocloud,applloapp_boms_order_service
+        instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.hostname}:${server.port}}}
+        acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788
+
+
+#开启熔断
+feign:
+  hystrix:
+    enabled: true
+
+app:
+  id: boms_turbine_service_guo
+
+apollo:
+  meta: http://10.20.11.111:8080
+
+applications: paas-application
+
+turbine:
+  aggregator:
+    clusterConfig: default
+  appConfig: ${applications}
+  clusterNameExpression: new String('default')
+
+
+
+

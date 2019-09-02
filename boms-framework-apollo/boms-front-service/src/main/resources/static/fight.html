@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+    <script src="js/util.js"></script>
+</head>
+<body>
+
+<div class="container" id="container">
+    <br/>
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary" v-on:click="add()">新增</button>
+        <a href="index.html">首页</a>
+        <div class="form-group" style="float: right">
+            <label>搜索</label>
+            <!--<input type="text" class="form-control" v-model="search" v-on:input ="searchFn"  placeholder="请输入搜索关键字">-->
+            <input type="text" class="form-control" v-model="search"  placeholder="请输入搜索关键字">
+        </div>
+    </form>
+    <hr/>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>航班号</th>
+            <th>航班开始时间</th>
+            <th>航班结束时间</th>
+            <th>总时长</th>
+            <th>航班容量</th>
+            <th>总票数</th>
+            <th>备注</th>
+            <th>用户订票管理</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item,id) in content" :key="item.id">
+            <td>{{item.fightId}}</td>
+            <td>{{item.number}}</td>
+            <td>{{item.starttime}}</td>
+            <td>{{item.endtime}}</td>
+            <td>{{item.time}}</td>
+            <td>{{item.capacity}}</td>
+            <td>{{item.people}}</td>
+            <td>{{item.remark}}</td>
+            <td>
+                <button type="button" class="btn btn-default" v-on:click="viewing(item.fightId)">查看</button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-default" v-on:click="edit(id)">编辑</button>
+                <button type="button" class="btn btn-danger" v-on:click="del(item.fightId)">删除</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!--新增-->
+    <div class="modal fade" tabindex="-1" role="dialog" id="addModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增飞机管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>航班号</label>
+                            <input type="text" name="number" class="form-control" v-model="tableData.number">
+                        </div>
+                        <div class="form-group">
+                            <label>航班开始时间</label>
+                            <input type="text" name="starttime" class="form-control"  v-model="tableData.starttime">
+                        </div>
+                        <div class="form-group">
+                            <label>航班结束时间</label>
+                            <input type="text" name="endtime" class="form-control" v-model="tableData.endtime">
+                        </div>
+                        <div class="form-group">
+                            <label>总时长</label>
+                            <input type="text" name="time" class="form-control"  v-model="tableData.time">
+                        </div>
+                        <div class="form-group">
+                            <label>航班容量</label>
+                            <input type="text" name="capacity" class="form-control"  v-model="tableData.capacity">
+                        </div>
+                        <div class="form-group">
+                            <label>总票数</label>
+                            <input type="text" name="people" class="form-control"  v-model="tableData.people">
+                        </div>
+                        <div class="form-group">
+                            <label>备注</label>
+                            <input type="text" name="remark" class="form-control"  v-model="tableData.remark">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary"  v-on:click="addSubForm">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--编辑-->
+    <div class="modal fade" tabindex="-1" role="dialog" id="editModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">编辑飞机管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>航班号</label>
+                            <input type="text" class="form-control" v-model="selectedlist.number" name="number">
+                        </div>
+                        <div class="form-group">
+                            <label>航班开始时间</label>
+                            <input type="text" class="form-control" v-model="selectedlist.starttime" name="starttime">
+                        </div>
+                        <div class="form-group">
+                            <label>航班结束时间</label>
+                            <input type="text" class="form-control" v-model="selectedlist.endtime" name="endtime">
+                        </div>
+                        <div class="form-group">
+                            <label>总时长</label>
+                            <input type="text" class="form-control" v-model="selectedlist.time" name="time">
+                        </div>
+                        <div class="form-group">
+                            <label>航班容量</label>
+                            <input type="text" class="form-control" v-model="selectedlist.capacity" name="capacity">
+                        </div>
+                        <div class="form-group">
+                            <label>总票数</label>
+                            <input type="text" class="form-control" v-model="selectedlist.people" name="people">
+                        </div>
+                        <div class="form-group">
+                            <label>备注</label>
+                            <input type="text" class="form-control" v-model="selectedlist.remark" name="remark">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" v-on:click="editSubForm">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--删除确认弹出框-->
+    <div class="modal fade" id="firstModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                    </button>
+                    <!--<h5 class="modal-title" id="myModalLabel">-->
+                    <!--确认删除框-->
+                    <!--</h5>-->
+                </div>
+                <div class="modal-body">
+                    确认删除此机票信息？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#secondModal" v-on:click="delFightSubForm">
+                        删除
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">取消
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+</div>
+
+
+<script>
+
+    //fight界面接收未预定机票的id
+    function GetRequest() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
+            }
+        }
+        return theRequest;
+    }
+
+    var app=new Vue({
+        el:"#container",
+        data:{
+            selected: -1,
+            selectedlist: {
+
+            },
+            delselected:-1,
+            viewPiaoId:-1,
+            reserverSelected:-1,
+            yuPiaoSelected:-1, //设定余票初始值
+            nowTime:"",
+            content_re:{
+                hangBanCapa: '',
+                bookTicketsTime:'',
+                fightId:'',
+                id:'',
+                hangBanId:''
+            },
+            content:
+                {
+                    fightId: '',
+                    number: '',
+                    starttime:'',
+                    endtime: '',
+                    time:'',
+                    capacity:'',
+                    people:'',
+                    remark:''
+                }
+            ,
+            tableData:{
+                fightId: '',
+                number: '',
+                starttime:'',
+                endtime: '',
+                time:'',
+                capacity:'',
+                people:'',
+                remark:''
+            },
+            search : ""
+        },
+        ////当vm实例的data和methods 初始化完毕后，vm实例会自动执行这个方法
+        created: function () {
+            this.getShowData();
+        },
+        methods: {
+            // 获取需要渲染到页面中的数据
+            getShowData:function() {
+                // this.cloneTableDatas = JSON.parse(JSON.stringify(arr));
+
+                var a = GetRequest();
+                var index_1 = a['id'];  //接收传过来的id
+                console.log("传过来的用户无票的信息为: " + index_1)
+
+                //获取列表信息
+                //这个url填写你获取数据的地址
+                var url = BASE_URL + '/flight/hangBan/allFight'
+                fetch(url,{
+                    method: 'get'
+                })
+                    .then(res => {
+                        return res.json()
+                    })
+                    .then(data => {
+                        console.log(data);
+                        this.content = data;
+                    })
+
+            },
+
+            //新增
+            add: function () {
+                $('#addModal').modal('show');
+            },
+            //提交新增
+            addSubForm:function(){
+
+                console.log(this.tableData)
+
+                //添加新增部分2019/4/2
+                let data = JSON.stringify(this.tableData)
+                console.log(data)
+                console.log(data[0])
+                console.log(".................data")
+                this.tableData = {}
+                //这个url添加你添加数据的地址
+                let url = BASE_URL + '/flight/hangBan/addFight'
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                }).then((res) => {
+
+                    this.getShowData()
+                    console.log(res);
+
+                })
+
+                $('#addModal').modal('hide');
+                window.reload()
+
+            },
+            // //删除
+            // del: function (fightId) {
+            //
+            //     let url = 'http://10.20.50.25:8083/deleteFight/'+fightId
+            //     fetch(url, {
+            //         method: 'post',
+            //     }).then((res) => {
+            //
+            //         this.getShowData()
+            //         console.log(res);
+            //
+            //     })
+            //
+            // },
+
+            //带着飞机id去界面查看哪些用户订了此票
+            viewing:function(fightId){
+
+               window.location.href = 'viewUser.html?id=' + fightId
+
+            },
+
+            //弹出确认删除框
+            del: function (fightId) {
+
+                console.log(fightId)
+                console.log("..........del fightId")
+                $('#firstModal').modal('show');
+                this.delselected = fightId;
+
+            },
+
+            //提交删除信息
+            delFightSubForm:function(){
+                console.log("提交要删除的id")
+                console.log(this.delselected)
+                console.log("提交要删除的id")
+
+                let url = BASE_URL + '/flight/hangBan/deleteFight/'+ this.delselected
+                fetch(url, {
+                    method: 'post',
+                }).then((res) => {
+
+                    this.getShowData()
+                    console.log(res);
+                    $('#firstModal').modal('hide');
+                    window.reload()
+
+                })
+
+            },
+
+            //编辑
+            edit: function (id) {
+                console.log(id)
+                $('#editModal').modal('show');
+                this.selected = id;
+                this.selectedlist = JSON.parse(JSON.stringify(this.content))[id];
+            },
+            //提交编辑
+            editSubForm:function() {
+
+                let data = JSON.stringify(this.selectedlist)
+                this.tableData = {}
+                //这个url添加你添加数据的地址
+                let url = BASE_URL + '/flight/hangBan/updateFight'
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                }).then((res) => {
+
+                    this.getShowData()
+                    console.log(res);
+
+                })
+
+                $('#editModal').modal('hide');
+                window.reload()
+
+            },
+
+            //     //查询
+            //     searchFn:function (e) {
+            //         var key=e.target.value;
+            //         //查询firstName列
+            //         if(key){
+            //             var searchArray=[];
+            //             this.tableDatas.forEach(function (item) {
+            //                 if(item.firstName.indexOf(key)>-1){
+            //                     searchArray.push(item);
+            //                 }
+            //             });
+            //             this.getShowData(searchArray);
+            //         }else{
+            //             this.getShowData(this.tableDatas);
+            //         }
+            //     }
+            //
+
+
+            //结尾
+        }
+
+    })
+
+
+</script>
+
+</body>
+</html>

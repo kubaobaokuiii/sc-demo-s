@@ -1,0 +1,152 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        
+spring:
+  application:
+    name: boms-framework-gateway
+  cloud:
+    config:
+        enabled: false
+    consul:
+      host: 10.20.11.111
+      port: 8500
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+        serviceName: ${spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 15s
+        prefer-ip-address: true
+        tags: urlprefix-/${spring.application.name},app01_sc-demo,zh01_LiuDui,apollo_boms_framework_gateway_guo
+        instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.hostname}:${server.port}}}
+        acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788
+
+    gateway:
+      routes:
+        - id: boms-user-service
+          uri: lb://boms-user-service
+          predicates:
+          - Path=/user/**
+          filters:
+            - StripPrefix=1
+        - id: boms-front-service
+          uri: lb://boms-front-service
+          predicates:
+          - Path=/front/**
+          filters:
+            - StripPrefix=1
+        - id: boms-flight-service
+          uri: lb://boms-flight-service
+          predicates:
+          - Path=/flight/**
+          filters:
+            - StripPrefix=1
+        - id: boms-order-service
+          uri: lb://boms-order-service
+          predicates:
+          - Path=/order/**
+          filters:
+            - StripPrefix=1
+
+#      config:
+#        enabled: false #默认是true
+        #format: YAML    # 表示consul上面文件的格式 有四种 YAML PROPERTIES KEY-VALUE FILES
+        #data-key: paasconfig #表示consul上面的KEY值(或者说文件的名字) 默认是data
+        #watch:
+        #  enabled: true #实时刷新配置
+        #prefix: #设置配置值的基本文件夹
+        #default-context: #设置所有应用程序使用的文件夹名称
+        #profile-separator: #设置用于使用配置文件在属性源中分隔配置文件名称的分隔符的值
+        #acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+server:
+  port: 9000
+
+#zuul:
+#  routes:
+#    boms-user-service:
+#      serviceId: boms-user-service
+#      path: /user/**
+#    boms-order-service:
+#      serviceId: boms-order-service
+#      path:  /order/**
+#    boms-flight-service:
+#      serviceId: boms-flight-service
+#      path: /flight/**
+#    boms-front-service:
+#      serviceId: boms-front-service
+#      path: /front/**
+#  retryable: true
+
+#zuul:
+#  routes:
+#    user-service: /apigateway/user/**
+#    order-service: /apigateway/**
+#    hang-ban-service: /apigateway/hangBan/**
+#    web-before-service: /apigateway/**
+
+app:
+  id: boms_framework_gateway_guo
+
+apollo:
+  meta: http://10.20.11.111:8080
+
+### Feign 配置
+feign:
+  # 开启断路器（熔断器）
+  hystrix:
+    enabled: true
+### Hystrix 配置
+
+hystrix:
+  # 这样将会自动配置一个 Hystrix 并发策略插件的 hook，这个 hook 会将 SecurityContext 从主线程传输到 Hystrix 的命令。
+  # 因为 Hystrix 不允许注册多个 Hystrix 策略，所以可以声明 HystrixConcurrencyStrategy
+  # 为一个 Spring bean 来实现扩展。Spring Cloud 会在 Spring 的上下文中查找你的实现，并将其包装在自己的插件中。
+  shareSecurityContext: true
+  command:
+    default:
+      circuitBreaker:
+        # 当在配置时间窗口内达到此数量的失败后，进行短路。默认20个
+        requestVolumeThreshold: 20
+        # 触发短路的时间值，当该值设为5000时，则当触发 circuit break 后的5000毫秒内都会拒绝request
+        # 也就是5000毫秒后才会关闭circuit。默认5000
+        sleepWindowInMilliseconds: 5000
+        # 强制打开熔断器，如果打开这个开关，那么拒绝所有request，默认false
+        forceOpen: false
+        # 强制关闭熔断器 如果这个开关打开，circuit将一直关闭且忽略，默认false
+        forceClosed: false
+      execution:
+        isolation:
+          thread:
+            # 熔断器超时时间，默认：1000/毫秒
+            timeoutInMilliseconds: 50000
+
+
+ribbon:
+  ReadTimeout: 50000
+  ConnectTimeout: 50000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+
+govern:
+  enable: true
+  apollo:
+    protocol: http
+    host: 10.20.11.111
+    port: 8080
+  auth:
+    enable: false
+    authHeader: clientId
+    incluedPath:
+    - /**
+

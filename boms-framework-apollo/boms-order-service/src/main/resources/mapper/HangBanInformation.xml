@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bocloud.boms.framework.order.mapper.HangBanInformationMapper">
+    <resultMap id="hangBanInformation" type="com.bocloud.boms.framework.order.model.HangBanInformation">
+        <result column="hang_ban_id" property="hangBanId"/>
+        <result column="fight_id" property="fightId"/>
+        <result column="hang_ban_capa" property="hangBanCapa"/>
+        <result column="book_tickets_time" property="bookTicketsTime"/>
+        <result column="version" property="version"/>
+        <result column="id" property="id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        hang_ban_id,fight_id,id,hang_ban_capa,book_tickets_time,version
+    </sql>
+
+    <!--只查询到用户-->
+
+    <!--更新版本号-->
+    <update id="updateVersion" parameterType="com.bocloud.boms.framework.order.model.HangBanInformation">
+        update hang_ban_information hang set hang.version=hang.version+1
+        where hang.fightId=#{fightId} and hang.version=#{version}
+        order by hang.hang_ban_capa limit 1
+    </update>
+
+    <!--查询所有的订单信息-->
+    <select id="findAllOrders"  resultMap="hangBanInformation">
+        select
+        <include refid="Base_Column_List" />
+        from hang_ban_information
+    </select>
+
+    <!--并发测试-查询余票+version-->
+    <select id="yuTicketsSelectVersion" resultMap="hangBanInformation">
+        SELECT hang_ban_capa,version FROM  hang_ban_information hang where  hang.fight_id = #{fightId} order by hang_ban_capa limit 1
+    </select>
+
+    <!--并发测试-插入形成订单+version-->
+    <insert id="insertUserAndFightVersion"  useGeneratedKeys="true" keyProperty="id" parameterType="com.bocloud.boms.framework.order.model.HangBanInformation">
+        insert into
+        hang_ban_information
+        (id,fight_id,hang_ban_capa,book_tickets_time,version)
+        values (#{id},#{fightId},#{hangBanCapa},#{bookTicketsTime},#{version});
+    </insert>
+
+
+    <!--查询余票数量，并显示在飞机管理信息界面,如果有两个飞机id会报错，待处理，处理方法是取最小的余量,改用列表查询-->
+    <select id="yuTicketsSelect" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT hang_ban_capa FROM  hang_ban_information hang where  hang.fight_id = #{fightId} order by hang_ban_capa limit 1
+    </select>
+
+    <!--在获取用户信息及飞机信息之后，插入用户id,飞机id及航班随机id及余量及订票时间-->
+    <insert id="insertUserAndFight"  useGeneratedKeys="true" keyProperty="id" parameterType="com.bocloud.boms.framework.order.model.HangBanInformation">
+        insert into
+        hang_ban_information
+        (id,fight_id,hang_ban_capa,book_tickets_time)
+        values (#{id},#{fightId},#{hangBanCapa},#{bookTicketsTime});
+    </insert>
+
+    <!--测试插入是否成功-->
+    <!--<insert id="insertUserAndFight"  useGeneratedKeys="true" keyProperty="id" parameterType="com.guo.Model.HangBanInformation">-->
+    <!--insert into-->
+    <!--hang_ban_information-->
+    <!--(id,fight_id,hang_ban_capa,book_tickets_time)-->
+    <!--values (2,1,23,'2019/4/9');-->
+    <!--</insert>-->
+
+    <!--去航班信息表查询在飞机id下的所有用户的id信息-->
+    <select id="selectUserIdByFightId" resultMap="hangBanInformation" parameterType="java.lang.Integer">
+        select h.id from hang_ban_information h where h.fight_id = #{id,jdbcType=INTEGER};
+    </select>
+
+    <!--去航班信息表中查询在用户id下的所有飞机id的信息-->
+    <select id="selectFightIdByUserId" resultMap="hangBanInformation" parameterType="java.lang.Integer">
+        select h.fight_id from hang_ban_information h where h.id = #{id,jdbcType=INTEGER};
+    </select>
+
+    <delete id="deleteUserTicket"  parameterType="java.lang.Integer">
+        DELETE FROM hang_ban_information
+        WHERE id = #{id,jdbcType=INTEGER} and fight_id = #{fightId,jdbcType=INTEGER}
+    </delete>
+
+    <delete id="deleteTickets"  parameterType="java.lang.Integer">
+        DELETE FROM hang_ban_information
+        WHERE hang_ban_id = #{hang_ban_id,jdbcType=INTEGER}
+    </delete>
+
+
+</mapper>
+

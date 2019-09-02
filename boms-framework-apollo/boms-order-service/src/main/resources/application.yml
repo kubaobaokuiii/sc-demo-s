@@ -1,0 +1,98 @@
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+server:
+  port: 8083
+
+debug: false
+
+spring:
+  application:
+    name: boms-order-service
+  cloud:
+    config:
+        enabled: false
+    consul:
+      host: 10.20.11.111
+      port: 8500
+      enabled: true
+      discovery:
+        enabled: true
+        register: true
+        serviceName: ${spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 15s
+        prefer-ip-address: true
+        tags: urlprefix-/${spring.application.name},app01_sc-demo,zh01_LiuDui,apollo_boms_order_service_guo
+        instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.hostname}:${server.port}}}
+        acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788
+#      config:
+#        enabled: true #默认是true
+#        format: YAML    # 表示consul上面文件的格式 有四种 YAML PROPERTIES KEY-VALUE FILES
+#        data-key: paasconfig #表示consul上面的KEY值(或者说文件的名字) 默认是data
+        #watch:
+        #  enabled: true #实时刷新配置
+        #prefix: #设置配置值的基本文件夹
+        #default-context: #设置所有应用程序使用的文件夹名称
+        #profile-separator: #设置用于使用配置文件在属性源中分隔配置文件名称的分隔符的值
+        #acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788
+  datasource:
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://10.20.11.114:3306/hang?useSSL=false&useUnicode=true&characterEncoding=utf-8
+    username: root
+    devtools:
+      restart:
+        enabled: true
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bocloud.boms.framework.order.model
+
+
+### Feign 配置
+feign:
+  # 开启断路器（熔断器）
+  hystrix:
+    enabled: true
+### Hystrix 配置
+
+hystrix:
+  # 这样将会自动配置一个 Hystrix 并发策略插件的 hook，这个 hook 会将 SecurityContext 从主线程传输到 Hystrix 的命令。
+  # 因为 Hystrix 不允许注册多个 Hystrix 策略，所以可以声明 HystrixConcurrencyStrategy
+  # 为一个 Spring bean 来实现扩展。Spring Cloud 会在 Spring 的上下文中查找你的实现，并将其包装在自己的插件中。
+  shareSecurityContext: true
+  command:
+    default:
+      circuitBreaker:
+        # 当在配置时间窗口内达到此数量的失败后，进行短路。默认20个
+        requestVolumeThreshold: 20
+        # 触发短路的时间值，当该值设为5000时，则当触发 circuit break 后的5000毫秒内都会拒绝request
+        # 也就是5000毫秒后才会关闭circuit。默认5000
+        sleepWindowInMilliseconds: 5000
+        # 强制打开熔断器，如果打开这个开关，那么拒绝所有request，默认false
+        forceOpen: false
+        # 强制关闭熔断器 如果这个开关打开，circuit将一直关闭且忽略，默认false
+        forceClosed: false
+      execution:
+        isolation:
+          thread:
+            # 熔断器超时时间，默认：1000/毫秒
+            timeoutInMilliseconds: 50000
+
+
+app:
+  id: boms_order_service_guo
+
+apollo:
+  meta: http://10.20.11.111:8080
+
+
+
+
+

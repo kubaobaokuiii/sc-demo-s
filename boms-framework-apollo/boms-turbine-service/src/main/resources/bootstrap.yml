@@ -1,0 +1,28 @@
+server:
+  port: 8001
+turbine:
+  aggregator:
+    clusterConfig: default
+  #appConfig: paas-application ,paas-shunt-parent
+  appConfig: boms-flight-service,boms-framework-gateway,boms-order-service,boms-user-service
+  clusterNameExpression: new String('default')
+#  clusterNameExpression: "'default'"
+spring:
+  application:
+    name: boms-turbine-service
+  cloud:
+    consul:
+      host: 10.20.11.111
+      port: 8500
+      discovery:
+        enabled: true
+        register: true
+        serviceName: ${spring.application.name}
+        healthCheckPath: /actuator/health
+        healthCheckInterval: 15s
+        healthCheckDeregisterCriticalServiceAfter: 30s
+        prefer-ip-address: true
+        tags: urlprefix-/${spring.application.name}
+        ##instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${spring.cloud.client.host}:${server.port}}}
+        instanceId: ${spring.application.name}:${spring.cloud.client.hostname}:${spring.application.instance_id:${server.port}}
+        acl-token: e2c06d18-0486-b43a-a1b0-14e8aefa2788

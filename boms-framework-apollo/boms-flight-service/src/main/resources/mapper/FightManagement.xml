@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bocloud.boms.framework.flight.mapper.FightManagementMapper">
+    <resultMap id="fightManagement" type="com.bocloud.boms.framework.flight.model.FightManagement">
+        <result column="fight_id" property="fightId"/>
+        <result column="capacity" property="capacity"/>
+        <result column="people" property="people"/>
+        <result column="number" property="number"/>
+        <result column="time" property="time"/>
+        <result column="starttime" property="starttime"/>
+        <result column="endtime" property="endtime"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        fight_id,capacity,people,number,time,starttime,endtime,remark
+    </sql>
+
+    <!--根据ID飞机管理的查询功能-->
+    <select id="fightId" resultMap="fightManagement" parameterType="java.lang.Integer">
+      select 
+      <include refid="Base_Column_List"/>
+      from fight_management
+      where fight_id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--飞机管理的增加功能-->
+    <insert id="insertFight" useGeneratedKeys="true" keyProperty="id" parameterType="com.bocloud.boms.framework.flight.model.FightManagement">
+        insert into fight_management
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fightId != null">
+                fight_id,
+            </if>
+            <if test="capacity != null">
+                capacity,
+            </if>
+            <if test="people != null">
+                people,
+            </if>
+            <if test="number != null">
+                number,
+            </if>
+            <if test="time != null">
+                time,
+            </if>
+            <if test="starttime != null">
+                starttime,
+            </if>
+            <if test="endtime != null">
+                endtime,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fightId != null">
+                #{fightId,jdbcType=INTEGER},
+            </if>
+            <if test="capacity != null">
+                #{capacity,jdbcType=VARCHAR},
+            </if>
+            <if test="people != null">
+                #{people,jdbcType=VARCHAR},
+            </if>
+            <if test="number != null">
+                #{number,jdbcType=VARCHAR},
+            </if>
+            <if test="time != null">
+                #{time,jdbcType=VARCHAR},
+            </if>
+            <if test="starttime != null">
+                #{starttime,jdbcType=VARCHAR},
+            </if>
+            <if test="endtime != null">
+                #{endtime,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <!--飞机管理的删除功能-->
+    <delete id="FightDeleteById" parameterType="java.lang.Integer">
+        delete from fight_management
+        where fight_id = #{fightId,jdbcType=INTEGER}
+    </delete>
+
+    <!--飞机管理的修改功能-->
+    <update id="FightUpdate" parameterType="com.bocloud.boms.framework.flight.model.FightManagement">
+
+--           update fight_management set fight_remark = "航班2" where fight_id = 3
+
+        update fight_management
+
+        <set>
+
+            <if test="capacity != null">
+                capacity = #{capacity,jdbcType=VARCHAR},
+            </if>
+
+            <if test="people != null">
+                people = #{people,jdbcType=VARCHAR},
+            </if>
+            <if test="number != null">
+                number = #{number,jdbcType=VARCHAR},
+            </if>
+            <if test="time != null">
+                time = #{time,jdbcType=VARCHAR},
+            </if>
+            <if test="starttime != null">
+                starttime = #{starttime,jdbcType=VARCHAR},
+            </if>
+            <if test="endtime != null">
+                endtime = #{endtime,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where fight_id = #{fightId,jdbcType=INTEGER}
+    </update>
+
+    <!--机票管理查询所有-->
+    <select id="findAllFight"  resultMap="fightManagement">
+        select
+        <include refid="Base_Column_List" />
+        from fight_management
+    </select>
+
+    <!--根据用户查询所对应的机票信息-->
+    <select id="userToFight" resultType="com.bocloud.boms.framework.flight.model.FightManagement">
+
+        select
+          t.number as number,
+          t.capacity as capacity,
+          t.endtime as endtime,
+          t.starttime as starttime,
+          t.people as people,
+          t.time as time,
+          t.remark as remark
+          from fight_management t
+          left join login_user u on u.fight_id = t.fight_id where u.id=#{id,jdbcType=INTEGER}
+
+    </select>
+
+</mapper>
+

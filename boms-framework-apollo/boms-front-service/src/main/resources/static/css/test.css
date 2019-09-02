@@ -1,0 +1,11 @@
+﻿.wrap {
+    width: 1000px;
+    margin: auto;
+}
+p, div {
+    margin: 15px 0;
+}
+p {
+    font-size: 18px;
+    font-weight: 500;
+}

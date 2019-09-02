@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+    <script src="js/util.js"></script>
+    <style>
+        .checkoutInformation{
+            color: red;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="container">
+    <br/>
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary" v-on:click="add()">新增</button>
+        <a href="index.html">首页</a>
+        <div class="form-group" style="float: right">
+            <label>搜索</label>
+            <!--<input type="text" class="form-control" v-model="search" v-on:input ="searchFn"  placeholder="请输入搜索关键字">-->
+            <input type="text" class="form-control" v-model="search"  placeholder="请输入搜索关键字">
+        </div>
+    </form>
+    <hr/>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名</th>
+            <th>身份证号</th>
+            <th>年龄</th>
+            <th>性别</th>
+            <th>已定航班</th>
+            <th>查看用户订票信息</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item,id) in content" :key="item.id">
+            <td>{{ item.id }}</td>
+            <td>{{ item.username }}</td>
+            <td>{{item.card}}</td>
+            <td>{{ item.age }}</td>
+            <td>{{ item.sex }}</td>
+            <td>{{ item.number }}</td>
+            <td>
+                <button type="button" class="btn btn-default" v-on:click="viewFight(item.id)">查看机票信息</button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-default" v-on:click="edit(id)">编辑</button>
+                <button type="button" class="btn btn-danger" v-on:click="del(item.id)">删除</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!--新增-->
+    <div class="modal fade" tabindex="-1" role="dialog" id="addModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增用户</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" name="username" class="form-control" v-model="tableData.username" @blur="checkaddname()">
+                            <span class="checkoutInformation">{{msgaddname}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>身份证号</label>
+                            <input type="text" name="card" class="form-control"  v-model="tableData.card" @blur="checkaddcard()">
+                            <span class="checkoutInformation">{{msgaddcard}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="text" name="age" class="form-control" v-model="tableData.age" @blur="checkaddage()">
+                            <span class="checkoutInformation">{{msgaddage}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>性别</label>
+                            <input type="text" name="sex" class="form-control"  v-model="tableData.sex">
+                        </div>
+                        <div class="form-group">
+                            <label>出生日期</label>
+                            <input type="text" name="birthday" class="form-control"  v-model="tableData.birthday">
+                        </div>
+                        <div class="form-group">
+                            <label>地址</label>
+                            <input type="text" name="adress" class="form-control"  v-model="tableData.adress">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary"  v-on:click="addSubForm">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--编辑-->
+    <div class="modal fade" tabindex="-1" role="dialog" id="editModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">编辑用户</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" class="form-control" v-model="selectedlist.username" name="username" @blur="checkname()">
+                            <span class="checkoutInformation">{{msgname}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>身份证号</label>
+                            <input type="text" class="form-control" v-model="selectedlist.card" name="card" @blur="checkcard()">
+                            <span class="checkoutInformation">{{msgcard}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="text" class="form-control" v-model="selectedlist.age" name="age" @blur="checkage()">
+                            <span class="checkoutInformation">{{msgage}}</span>
+                        </div>
+                        <div class="form-group">
+                            <label>性别</label>
+                            <input type="text" class="form-control" v-model="selectedlist.sex" name="sex">
+                        </div>
+                        <div class="form-group">
+                            <label>出生日期</label>
+                            <input type="text" class="form-control" v-model="selectedlist.birthday" name="birthday">
+                        </div>
+                        <div class="form-group">
+                            <label>地址</label>
+                            <input type="text" class="form-control" v-model="selectedlist.adress" name="adress">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" v-on:click="editSubForm">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--点击查看用户机票信息-->
+    <!--<div class="modal fade" tabindex="-1" role="dialog" id="viewFightModal">-->
+        <!--<div class="modal-dialog" role="document">-->
+            <!--<div class="modal-content">-->
+                <!--<div class="modal-header">-->
+                    <!--<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>-->
+                    <!--<h4 class="modal-title">查看机票信息</h4>-->
+                <!--</div>-->
+                <!--<div class="modal-body">-->
+                    <!--<form>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>航班号</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.number" name="number">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>容量</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.capacity" name="capacity">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>总时长</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.time" name="time">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>开始起飞时间</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.starttime" name="starttime">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>结束起飞时间</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.endtime" name="endtime">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>订票人数</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.people" name="people">-->
+                        <!--</div>-->
+                        <!--<div class="form-group">-->
+                            <!--<label>备注</label>-->
+                            <!--<input type="text" class="form-control" v-model="selectedViewlist.remark" name="remark">-->
+                        <!--</div>-->
+                    <!--</form>-->
+                <!--</div>-->
+                <!--<div class="modal-footer">-->
+                    <!--<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>-->
+                    <!--<button type="button" class="btn btn-primary" v-on:click="viewFightSubForm">确定</button>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+    <!--删除确认弹出框-->
+    <div class="modal fade" id="firstModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">
+                    </button>
+                    <!--<h5 class="modal-title" id="myModalLabel">-->
+                        <!--确认删除框-->
+                    <!--</h5>-->
+                </div>
+                <div class="modal-body">
+                    确认删除此用户信息？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#secondModal" v-on:click="delUserSubForm">
+                        删除
+                    </button>
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">取消
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+
+
+
+
+</div>
+
+<script>
+
+    var app=new Vue({
+        el:"#container",
+        data:{
+            selected: -1,
+            selectedView:-1,
+            selectedlist: {
+
+            },
+            delselected:-1,
+            msgname:"",
+            msgcard:"",
+            msgage:"",
+            msgaddname:"",
+            msgaddcard:"",
+            msgaddage:"",
+            selectedViewlist:{},
+            content:
+                {
+                    id: '',
+                    username: '',
+                    card:'',
+                    age: '',
+                    sex:'',
+                    birthday:'',
+                    adress:'',
+                    number:''
+                }
+            ,
+            content_one:
+                {
+                    id: '',
+                    number: '',
+                    starttime:'',
+                    endtime: '',
+                    time:'',
+                    capacity:'',
+                    people:'',
+                    remark:''
+                }
+            ,
+            tableData:{
+                id: '',
+                username: '',
+                card:'',
+                age: '',
+                sex:'',
+                birthday:'',
+                adress:''
+            },
+            tableViewData:{
+                id: '',
+                number: '',
+                starttime:'',
+                endtime: '',
+                time:'',
+                capacity:'',
+                people:'',
+                remark:''
+            },
+            search : ""
+        },
+        ////当vm实例的data和methods 初始化完毕后，vm实例会自动执行这个方法
+        created: function () {
+            this.getShowData();
+        },
+        methods: {
+            // 获取需要渲染到页面中的数据
+            getShowData:function() {
+                // this.cloneTableDatas = JSON.parse(JSON.stringify(arr));
+
+                //获取列表信息
+                //这个url填写你获取数据的地址	 我的地址http://localhost:8080/ssm/select.action
+                var url = BASE_URL + '/user/user/allUser';
+                fetch(url,{
+                    method: 'get'
+                })
+                    .then(res => {
+                        return res.json()
+                    })
+                    .then(data => {
+                        console.log(data);
+                        this.content = data;
+                    })
+
+            },
+
+            //用户名的校验
+            checkname:function(){
+
+                if(this.selectedlist.username.length==0){
+
+                    this.msgname="用户名不能为空";
+
+                }else if(!/^1[0-9]{10}$/.test(this.selectedlist.username))
+
+                {
+                    this.msgname="用户名为1开头的11位手机号";
+
+                }else{
+                    this.msgname="用户名正确";
+                }
+                return this.selectedlist.username>11;
+            },
+
+            //身份证号校验
+            checkcard:function(){
+
+                let card_one = /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{4}$/;
+
+                let card = this.selectedlist.card;
+
+                if(this.selectedlist.card.length==0){
+
+                    this.msgcard="身份证号输入不能为空";
+
+                }else if(!card_one.test(card))
+
+                {
+                    console.log(card_one.test(card))
+                    console.log("......................校验")
+                    this.msgcard="身份证号格式不正确";
+
+                }else{
+                    this.msgcard="身份证号正确";
+                }
+                return this.selectedlist.card>18;
+
+            },
+
+            //年龄校验
+            checkage:function(){
+
+                if(this.selectedlist.age.length==0){
+
+                    this.msgage="年龄不能为空";
+
+                }else if(!/^[0-9]{2}$/.test(this.selectedlist.age))
+
+                {
+                    this.msgage="请输入正确的年龄";
+
+                }else{
+                    this.msgage="年龄正确";
+                }
+                return this.selectedlist.age>3;
+
+            },
+
+            //用户名的校验
+            checkaddname:function(){
+
+                if(this.tableData.username.length==0){
+
+                    this.msgaddname="用户名不能为空";
+
+                }else if(!/^1[0-9]{10}$/.test(this.tableData.username))
+
+                {
+                    this.msgaddname="用户名为1开头的11位手机号";
+
+                }else{
+                    this.msgaddname="用户名正确";
+                }
+                return this.tableData.username>11;
+            },
+
+            //身份证号校验
+            checkaddcard:function(){
+
+                let card_one = /^[1-9]\d{5}[1-9]\d{3}((0\d)|(1[0-2]))(([0|1|2]\d)|3[0-1])\d{4}$/;
+
+                let card = this.tableData.card;
+
+                if(this.tableData.card.length==0){
+
+                    this.msgaddcard="身份证号输入不能为空";
+
+                }else if(!card_one.test(card))
+
+                {
+                    console.log(card_one.test(card))
+                    console.log("......................校验")
+                    this.msgaddcard="身份证号格式不正确";
+
+                }else{
+                    this.msgaddcard="身份证号正确";
+                }
+                return this.tableData.card>18;
+
+            },
+
+            //年龄校验
+            checkaddage:function(){
+
+                if(this.tableData.age.length==0){
+
+                    this.msgaddage="年龄不能为空";
+
+                }else if(!/^[0-9]{2}$/.test(this.tableData.age))
+
+                {
+                    this.msgaddage="请输入正确的年龄";
+
+                }else{
+                    this.msgaddage="年龄正确";
+                }
+                return this.tableData.age>3;
+
+            },
+
+
+            //新增
+            add: function () {
+                $('#addModal').modal('show');
+            },
+            //提交新增
+            addSubForm:function(){
+
+                //添加新增部分2019/4/1
+                let data = JSON.stringify(this.tableData)
+                this.tableData = {}
+                //这个url添加你添加数据的地址
+                let url = BASE_URL + '/user/user/addUser'
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                }).then((res) => {
+
+                    this.getShowData()
+                    console.log(res);
+
+                })
+
+                $('#addModal').modal('hide');
+                window.reload()
+
+            },
+            //删除
+            // del: function (id) {
+            //
+            //     let url = 'http://10.20.50.25:8083/deleteUser/'+id
+            //     fetch(url, {
+            //         method: 'post',
+            //     }).then((res) => {
+            //
+            //         this.getShowData()
+            //         console.log(res);
+            //
+            //     })
+            //
+            // },
+
+            //弹出确认删除框
+            del: function (id) {
+
+                console.log(id)
+                console.log("..........del id")
+                $('#firstModal').modal('show');
+                this.delselected = id;
+
+            },
+
+            //提交删除信息
+            delUserSubForm:function(){
+                console.log("提交要删除的id")
+                console.log(this.delselected)
+                console.log("提交要删除的id")
+
+                    let url = BASE_URL + '/user/user/deleteUser/'+ this.delselected
+                    fetch(url, {
+                        method: 'post',
+                    }).then((res) => {
+
+                        this.getShowData()
+                        console.log(res);
+                        $('#firstModal').modal('hide');
+                        window.reload()
+
+                    })
+
+            },
+
+            //编辑
+            edit: function (id) {
+                console.log(id)
+                $('#editModal').modal('show');
+                this.selected = id;
+                this.selectedlist = JSON.parse(JSON.stringify(this.content))[id];
+            },
+            //提交编辑
+            editSubForm:function() {
+
+                let data = JSON.stringify(this.selectedlist)
+                this.tableData = {}
+                //这个url添加你添加数据的地址
+                let url = BASE_URL + '/user/user/updateUser'
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: data
+                }).then((res) => {
+
+                    this.getShowData()
+                    console.log(res);
+
+                })
+
+                $('#editModal').modal('hide');
+                window.reload()
+
+            },
+
+            //带着用户id去查看用户订的机票信息
+            viewFight:function (id) {
+
+                window.location.href = 'viewFight.html?id=' + id
+
+            },
+
+            // //根据用户查询机票信息
+            // viewFight: function (id) {
+            //
+            //     console.log(id)
+            //
+            //     $('#viewFightModal').modal('show');
+            //
+            //     this.selectedView = id;
+            //
+            //     this.selectedViewlist = JSON.parse(JSON.stringify(this.content_one))[id];
+            //
+            //     let data = JSON.stringify(this.selectedViewlist)
+            //
+            //     this.tableViewData = {}
+            //
+            //     //这个url添加你添加数据的地址
+            //     let url = 'http://10.20.50.25:8083/userToFight/'+ id
+            //
+            //     fetch(url, {
+            //         method: 'POST',
+            //         headers: {
+            //             'Accept': 'application/json',
+            //             'Content-Type': 'application/json'
+            //         },
+            //         body: data
+            //     }).then((res) => {
+            //
+            //         $('#viewFightModal').modal('show');
+            //         return res.json()
+            //
+            //     }) .then(data => {
+            //         this.selectedViewlist = data
+            //     })
+            // },
+            //
+            // viewFightSubForm:function() {
+            //
+            //     $('#viewFightModal').modal('hide');
+            //
+            // },
+
+
+            //     //查询
+            //     searchFn:function (e) {
+            //         var key=e.target.value;
+            //         //查询firstName列
+            //         if(key){
+            //             var searchArray=[];
+            //             this.tableDatas.forEach(function (item) {
+            //                 if(item.firstName.indexOf(key)>-1){
+            //                     searchArray.push(item);
+            //                 }
+            //             });
+            //             this.getShowData(searchArray);
+            //         }else{
+            //             this.getShowData(this.tableDatas);
+            //         }
+            //     }
+            //
+
+
+            //结尾
+        }
+
+    })
+
+
+</script>
+
+</body>
+</html>

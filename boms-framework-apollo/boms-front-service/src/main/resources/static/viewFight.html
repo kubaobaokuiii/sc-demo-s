@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+    <script src="js/util.js"></script>
+</head>
+<body>
+
+<div class="container" id="container">
+    <br/>
+    <form class="form-inline">
+        <button type="button" class="btn btn-primary" v-on:click="">查看</button>
+        <a href="index.html">首页</a>
+        <div class="form-group" style="float: right">
+            <label>搜索</label>
+            <!--<input type="text" class="form-control" v-model="search" v-on:input ="searchFn"  placeholder="请输入搜索关键字">-->
+            <input type="text" class="form-control" v-model="search"  placeholder="请输入搜索关键字">
+        </div>
+    </form>
+    <hr/>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>航班号</th>
+            <th>航班开始时间</th>
+            <th>航班结束时间</th>
+            <th>总时长</th>
+            <th>航班容量</th>
+            <th>总票数</th>
+            <th>备注</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(item,id) in content" :key="item.id">
+            <td>{{item.fightId}}</td>
+            <td>{{item.number}}</td>
+            <td>{{item.starttime}}</td>
+            <td>{{item.endtime}}</td>
+            <td>{{item.time}}</td>
+            <td>{{item.capacity}}</td>
+            <td>{{item.people}}</td>
+            <td>{{item.remark}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+<script>
+    
+    //接收上一个界面传过来的id
+    function GetRequest() {
+        var url = location.search; //获取url中"?"符后的字串
+        var theRequest = new Object();
+        if (url.indexOf("?") != -1) {
+            var str = url.substr(1);
+            strs = str.split("&");
+            for (var i = 0; i < strs.length; i++) {
+                theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
+            }
+        }
+        return theRequest;
+    }
+
+
+    var app=new Vue({
+        el:"#container",
+        data:{
+            selected: -1,
+            selectedlist: {
+
+            },
+            delselected:-1,
+            viewPiaoId:-1,
+            reserverSelected:-1,
+            yuPiaoSelected:-1, //设定余票初始值
+            nowTime:"",
+            content_re:{
+                hangBanCapa: '',
+                bookTicketsTime:'',
+                fightId:'',
+                id:'',
+                hangBanId:''
+            },
+            content:
+                {
+                    fightId: '',
+                    number: '',
+                    starttime:'',
+                    endtime: '',
+                    time:'',
+                    capacity:'',
+                    people:'',
+                    remark:''
+                }
+            ,
+            tableData:{
+                fightId: '',
+                number: '',
+                starttime:'',
+                endtime: '',
+                time:'',
+                capacity:'',
+                people:'',
+                remark:''
+            },
+            search : ""
+        },
+        ////当vm实例的data和methods 初始化完毕后，vm实例会自动执行这个方法
+        created: function () {
+            this.getShowData();
+        },
+        methods: {
+            // 获取需要渲染到页面中的数据
+            getShowData:function() {
+
+                var a = GetRequest();
+                var index_1 = a['id'];  //接收传过来的id
+                console.log("传过来的id为: " + index_1)
+
+                var url = BASE_URL + '/order/selectFightIdByUserId/'+ index_1
+                fetch(url,{
+                    method: 'get'
+                })
+                    .then(res => {
+                        return res.json()
+                    })
+                    .then(data => {
+
+                        console.log("传过来的id为: " + index_1)
+                        console.log(data);   //当data为null时需要做处理(待做)
+                        console.log(isNaN(data));
+                        console.log(isNaN(data) == false )
+
+                        if(isNaN(data) == false){
+
+                            window.location.href="fight.html?id=" + index_1;
+
+                        }else {
+
+                            for (var i = 0; i < data.length; i++) {
+
+                                console.log("用户的id值")
+                                console.log(data[i].fightId)
+                                console.log("用户的id值")
+
+                                var arrData = []; //定义数组初始值
+                                var url = BASE_URL + '/flight/hangBan/allFight/' + data[i].fightId;
+                                fetch(url, {
+                                    method: 'get'
+                                })
+                                    .then(res => {
+                                        console.log(res)
+                                        return res.json()
+                                    })
+                                    .then(data => {
+                                        console.log("飞机信息的data")
+                                        console.log(data);
+                                        this.fightDataLast = data;
+                                        console.log(this.fightDataLast)
+
+                                        arrData.push(this.fightDataLast)
+                                        console.log(".................push数组为")
+                                        console.log(arrData)
+                                        this.content = arrData;
+
+                                    })
+
+                            }  //for循环的结束
+
+                        }  //if else 判断的结束
+
+                    })
+                
+            },
+
+        }
+
+    })
+
+
+</script>
+
+</body>
+</html>
