@@ -29,7 +29,7 @@
         <lombok.version>1.16.18</lombok.version>
         <apollo.version>1.1.1</apollo.version>
         <hutools.version>4.5.6</hutools.version>
-        <fastjson.version>1.2.58</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
     </properties>
 
     <parent>
